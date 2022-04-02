@@ -1,0 +1,30 @@
+.trackBar {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    padding: 12px 0;
+    grid-template-columns: 100%;
+    grid-template-rows: 100%;
+}
+
+.trackBarControl {
+    vertical-align: top;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(200, 200, 200);
+    opacity: 0.9;
+    border-radius: 90px;
+    cursor: pointer;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.trackBarControl::-webkit-slider-thumb {
+    background-color: white;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    -webkit-appearance: none;
+}

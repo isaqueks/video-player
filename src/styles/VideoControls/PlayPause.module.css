@@ -1,0 +1,21 @@
+
+.playPause {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    background-color: transparent;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.playing {
+    background-image: url('/static/img/pause.png');
+}
+
+.paused {
+    background-image: url('/static/img/play.png');
+}
