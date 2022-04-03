@@ -6,7 +6,7 @@
     height: 100%;
     display: grid;
     grid-template-columns: 100%;
-    grid-template-rows: auto 30px 35px;
+    grid-template-rows: auto 65px;
 
     background: rgb(50,50,50);
     background: linear-gradient(0deg, rgba(50,50,50,0.88) 0%, rgba(62,62,62,0.66) 29%, rgba(27,27,27,0) 100%);
@@ -14,11 +14,38 @@
     transition: opacity .2s;
 }
 
+.videoControlsMobile {
+    grid-template-rows: auto 35px;
+}
+
+.downControls {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 30px 35px;
+    width: 100%;
+    height: 100%;
+}
+
+.downControlsMobile {
+    grid-template-rows: 100%;
+    grid-template-columns: 1fr 70px;
+}
+
 .barControls {
     display: grid;
     width: 100%;
     height: 100%;
     grid-template-columns: 135px 1fr 70px;
+}
+
+.barControlsMobile {
+    grid-template-columns: 0px 10px 70px;
+}
+
+.barControlsMobile .barControlsLeft {
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
 }
 
 .barControlsLeft, .barControlsRight {
@@ -46,4 +73,19 @@
 .barControlsRight {
     padding-right: 10px;
     grid-template-columns: 50% 50%;
+}
+
+.bannerPlayPause {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+    align-items: center;
+    justify-items: center;
+}
+
+.bannerPlayPause * {
+    width: 100px !important;
+    height: 100px !important;
 }

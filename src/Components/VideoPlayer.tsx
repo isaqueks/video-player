@@ -1,5 +1,6 @@
 import style from '@Styles/VideoPlayer.module.css';
 import AudioTrack from '@ts/AudioTrack';
+import isMobile from '@ts/IsMobile';
 import Subtitle from '@ts/Subtitle';
 import { useEffect, useRef, useState } from 'react';
 import SubtitleView from './SubtitleView';
@@ -23,6 +24,8 @@ export default function VideoPlayer(props: Props) {
     const [controlsVisible, setControlsVisible] = useState(true);
     const [subtitle, setSubtitle] = useState<Subtitle>(null);
     const [speed, setSpeed] = useState<number>(1);
+    const [ mobile, setMobile ] = useState(false);
+    const [ src, setSrc ] = useState(props.src);
 
     // just to "fix" an object at memory
     const [wrapper] = useState({ timeout: null });
@@ -85,21 +88,70 @@ export default function VideoPlayer(props: Props) {
         }
     }
 
+    const bannerClick = () => {
+        if (isPaused) {
+            play();
+        }
+        else {
+            if (mobile) {
+                if (controlsVisible) {
+                    return pause();
+                }
+                return setControlsVisible(true);
+            }
+            pause();
+        }
+    }
+
     useEffect(() => {
+        const reallyIsMobile = isMobile();
+        if (mobile !== reallyIsMobile) {
+            setMobile(reallyIsMobile);
+        }
         const handler = setInterval(() => {
             if (time !== video?.current?.currentTime) {
                 setTime(video?.current?.currentTime || 0);
             }
+            if (props.src !== src) {
+                pause();
+                setSrc(props.src);
+                seek(0);
+            }
         }, 250);
 
-        return () => clearInterval(handler);
+        let orientationHandler;
+
+        if (mobile) {
+            orientationHandler = () => {
+                const horizontal = !(window.orientation === 0 || window.orientation === 180);
+                console.log({ horizontal });
+                
+                if (horizontal) {
+                    if (!document.fullscreenElement) {
+                        toggleFullScreen();
+                    }
+                }
+                else {
+                    if (document.fullscreenElement) {
+                        toggleFullScreen();
+                    }
+                }
+            }
+            window.addEventListener('orientationchange', orientationHandler);
+        }
+
+        return () => {
+            clearInterval(handler);
+            orientationHandler && window.removeEventListener('orientationchange', orientationHandler);
+        }
     });
 
     return (
         <div 
             ref={videoWrapper} 
-            className={style.videoPlayer}
+            className={`${style.videoPlayer} ${mobile ? style.mobile : ''}`}
             onMouseMove={() => showControls()}
+            key={src}
         >
             <video
                 ref={video}
@@ -109,11 +161,12 @@ export default function VideoPlayer(props: Props) {
                 onStalled={() => pause(true)}
                 controls={false}
             >
-                <source type={props.type} src={props.src} />
+                <source type={props.type} src={src} />
             </video>
-            <SubtitleView bottom={(controlsVisible || isPaused) ? '70px' : '10px'} subtitle={subtitle} time={time} />
+            <SubtitleView bottom={(controlsVisible || isPaused) ? '70px' : '15px'} subtitle={subtitle} time={time} />
             <div className={style.controlsWrapper}>
                 <VideoControls
+                    mobile={mobile}
                     isPlaying={!isPaused}
                     duration={video?.current?.duration || 0}
                     currentTime={time}
@@ -130,6 +183,7 @@ export default function VideoPlayer(props: Props) {
                     onChangeFullscreen={() => toggleFullScreen()}
                     onChangeSpeed={n => setVideoSpeed(n)}
                     onSelectSubtitle={n => setVideoSubtitle(n)}
+                    onBannerClick={() => bannerClick()}
                 />
             </div>
         </div>
