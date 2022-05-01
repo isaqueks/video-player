@@ -4,12 +4,14 @@ import { useState } from 'react';
 import IconButton from '../IconButton';
 import Padding from '../Padding';
 import ConfigDialog from './ConfigDialog';
+import LoadingAnimation from './LoadingAnimation';
 import PlayPause from './PlayPause';
 import VideoTrackBar from './VideoTrackBar';
 import VolumeControl from './VolumeControl';
 
 interface Props {
     isPlaying: boolean;
+    isLoading: boolean;
     duration: number;
     currentTime: number;
     volume: number;
@@ -31,13 +33,23 @@ interface Props {
 
 export default function VideoControls(props: Props) {
 
-    const { isPlaying, duration, currentTime, volume, speed, subtitles, selectedSubtitle, mobile } = props;
+    const { 
+        isPlaying, 
+        isLoading,
+        duration, 
+        currentTime, 
+        volume, 
+        speed, 
+        subtitles, 
+        selectedSubtitle, 
+        mobile
+    } = props;
     const { onPlay, onPause, onSeek, onSetVolume, onChangeFullscreen, onChangeSpeed, onSelectSubtitle, onBannerClick } = props;
 
     const [ isDialogOpened, setDialogOpened ] = useState(false);
 
     const inline = {
-        opacity: (props.visible || isDialogOpened) ? 1 : 0,
+        opacity: (props.visible || isDialogOpened || isLoading) ? 1 : 0,
     }
 
     const bannerClick = () => {
@@ -46,6 +58,14 @@ export default function VideoControls(props: Props) {
         }
 
         onBannerClick();
+    }
+
+    const formatTime = (secs: number) => {
+
+        const mins = Math.floor(secs / 60);
+        const secsLeft = Math.floor(secs % 60);
+
+        return `${mins}:${String(secsLeft).padStart(2, '0')}`;
     }
 
     return (
@@ -61,8 +81,15 @@ export default function VideoControls(props: Props) {
                             onChangeSpeed={speed => onChangeSpeed(speed)} />
                     </Padding>
                 ) : <div className={style.bannerPlayPause}>
-                    <PlayPause isPlaying={isPlaying} onPlay={() => onPlay()} onPause={() => onPause()} />
+                    {isLoading 
+                        ? <LoadingAnimation /> 
+                        : <PlayPause isPlaying={isPlaying} onPlay={() => onPlay()} onPause={() => onPause()} />
+                    }
                 </div> }
+            </div>
+            <div className={style.videoTiming}>
+                <div className={style.currentTime}>{formatTime(currentTime)}</div>
+                <div className={style.totalTime}>{formatTime(duration)}</div>
             </div>
             <div className={style.downControls.concat(mobile ? (' '+style.downControlsMobile) : '')}>
                 <VideoTrackBar

@@ -1,5 +1,6 @@
 import style from '@Styles/VideoPlayer.module.css';
 import AudioTrack from '@ts/AudioTrack';
+import GetAudio from '@ts/GetAudio';
 import isMobile from '@ts/IsMobile';
 import Subtitle from '@ts/Subtitle';
 import { useEffect, useRef, useState } from 'react';
@@ -13,22 +14,34 @@ interface Props {
     subtitles: Subtitle[];
 }
 
+const SYNC_INTERVAL = 250;
+const STATE_LOADED = 4;
+
 export default function VideoPlayer(props: Props) {
 
     const video = useRef<HTMLVideoElement>(null);
     const videoWrapper = useRef<HTMLDivElement>(null);
 
-    const [isPaused, setIsPaused] = useState(true);
-    const [time, setTime] = useState(video?.current?.currentTime || 0);
-    const [volume, setVolume] = useState(video?.current?.volume || 100);
-    const [controlsVisible, setControlsVisible] = useState(true);
-    const [subtitle, setSubtitle] = useState<Subtitle>(null);
-    const [speed, setSpeed] = useState<number>(1);
+    const [ isPaused, setIsPaused ] = useState(true);
+    const [ isLoading, setIsLoading ] = useState(true);
+
+    const [ time, setTime ] = useState(video?.current?.currentTime || 0);
+    const [ controlsVisible, setControlsVisible ] = useState(true);
+    const [ subtitle, setSubtitle ] = useState<Subtitle>(null);
+    const [ speed, setSpeed ] = useState<number>(1);
     const [ mobile, setMobile ] = useState(false);
     const [ src, setSrc ] = useState(props.src);
+    const [ audio, setAudio ] = useState<HTMLAudioElement>(GetAudio(props.tracks?.[0]?.src || props.src));
+    const [ volume, setVolume ] = useState((audio?.volume||1) * 100);
 
     // just to "fix" an object at memory
-    const [wrapper] = useState({ timeout: null });
+    const [ wrapper ] = useState({ timeout: null });
+
+    const setAudioSrc = (src: string) => {
+        if (audio.src !== src) {
+            setAudio(GetAudio(src));
+        }
+    }
 
     const showControls = () => {
         setControlsVisible(true);
@@ -41,6 +54,8 @@ export default function VideoPlayer(props: Props) {
     const pause = (force: boolean = false) => {
         const { current } = video;
 
+        audio.pause();
+
         if (!force && current.paused) {
             return;
         }
@@ -51,6 +66,8 @@ export default function VideoPlayer(props: Props) {
 
     const play = (force: boolean = false) => {
         const { current } = video;
+
+        audio.play();
 
         if (!force && !current.paused) {
             return;
@@ -66,7 +83,11 @@ export default function VideoPlayer(props: Props) {
     }
 
     const setVideoVolume = (volume: number) => {
-        video.current.volume = volume / 100;
+        const vol = volume / 100;
+        if (Math.abs(audio.volume - vol) <= 0.01) {
+            return;
+        }
+        audio.volume = vol;
         setVolume(volume);
     }
 
@@ -108,7 +129,12 @@ export default function VideoPlayer(props: Props) {
         if (mobile !== reallyIsMobile) {
             setMobile(reallyIsMobile);
         }
-        const handler = setInterval(() => {
+        const syncVideoAndAudioHandler = setInterval(() => {
+            
+            if (video?.current && audio && !isPaused && Math.abs(audio.currentTime - video.current.currentTime) > 0.5) {
+                audio.currentTime = video.current.currentTime;
+            }
+
             if (time !== video?.current?.currentTime) {
                 setTime(video?.current?.currentTime || 0);
             }
@@ -117,7 +143,7 @@ export default function VideoPlayer(props: Props) {
                 setSrc(props.src);
                 seek(0);
             }
-        }, 250);
+        }, SYNC_INTERVAL);
 
         let orientationHandler;
 
@@ -140,8 +166,18 @@ export default function VideoPlayer(props: Props) {
             window.addEventListener('orientationchange', orientationHandler);
         }
 
+        const checkLoadingHandler = setInterval(() => {
+            const loading = (video?.current?.readyState || 0) < STATE_LOADED;
+
+            if (loading !== isLoading) {
+                setIsLoading(loading);
+            }
+
+        }, SYNC_INTERVAL);
+
         return () => {
-            clearInterval(handler);
+            clearInterval(syncVideoAndAudioHandler);
+            clearInterval(checkLoadingHandler);
             orientationHandler && window.removeEventListener('orientationchange', orientationHandler);
         }
     });
@@ -158,8 +194,9 @@ export default function VideoPlayer(props: Props) {
                 className={style.videoElement}
                 onPause={() => pause(true)}
                 onPlay={() => play(true)}
-                onStalled={() => pause(true)}
+                onStalled={() => false && pause(true)}
                 controls={false}
+                muted={true}
             >
                 <source type={props.type} src={src} />
             </video>
@@ -167,6 +204,7 @@ export default function VideoPlayer(props: Props) {
             <div className={style.controlsWrapper}>
                 <VideoControls
                     mobile={mobile}
+                    isLoading={isLoading}
                     isPlaying={!isPaused}
                     duration={video?.current?.duration || 0}
                     currentTime={time}

@@ -12,10 +12,45 @@
     background-position: center;
 }
 
-.playing {
-    background-image: url('/static/img/pause.png');
+.playPauseIcon {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
-.paused {
-    background-image: url('/static/img/play.png');
+.paused.playPauseIcon::after {
+    content: ' ';
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform: translateX(-50%) scale(140%, 70%) rotate(45deg);
+    transform-origin: center;
+    background-color: white;
+}
+
+.playing.playPauseIcon {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 100%;
+}
+
+.playing.playPauseIcon::after {
+    margin: auto;
+    content: ' ';
+    display: block;
+    width: 55%;
+    height: 100%;
+    transform-origin: center;
+    background-color: white;
+}
+
+.playing.playPauseIcon::before {
+    margin: auto;
+    content: ' ';
+    display: block;
+    width: 55%;
+    height: 100%;
+    transform-origin: center;
+    background-color: white;
 }

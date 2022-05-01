@@ -9,6 +9,8 @@ interface Props {
 export default function PlayPause(props: Props) {
     const { isPlaying, onPlay, onPause } = props;
     return (
-        <div className={`${style.playPause} ${isPlaying ? style.playing : style.paused}`} onClick={isPlaying ? onPause : onPlay} />
+        <div className={`${style.playPause} ${isPlaying ? style.playing : style.paused}`} onClick={isPlaying ? onPause : onPlay} >
+            <div className={`${style.playPauseIcon} ${isPlaying ? style.playing : style.paused}`}></div>
+        </div>
     );
 }
