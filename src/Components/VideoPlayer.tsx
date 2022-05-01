@@ -142,6 +142,7 @@ export default function VideoPlayer(props: Props) {
             if (props.src !== src) {
                 pause();
                 setSrc(props.src);
+                setAudioSrc(props.tracks?.[0]?.src || props.src);
                 seek(0);
             }
         }, SYNC_INTERVAL);
