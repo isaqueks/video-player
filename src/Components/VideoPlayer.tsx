@@ -93,6 +93,7 @@ export default function VideoPlayer(props: Props) {
 
     const setVideoSpeed = (speed: number) => {
         video.current.playbackRate = speed;
+        audio.playbackRate = speed;
         setSpeed(speed);
     }
 

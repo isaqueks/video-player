@@ -5,14 +5,16 @@ interface Props {
     selectedSubtitle: Subtitle;
     subtitles: Subtitle[];
     currentSpeed: number;
+    mobile?: boolean;
 
     onSelectSubtitle: (subtitle: Subtitle) => void;
     onChangeSpeed: (speed: number) => void;
+    onClose: () => void;
 }
 
 interface FieldProps {
     title: string;
-    options: {value: any, text: string}[];
+    options: { value: any, text: string }[];
     value: any;
     onChange: (value: any) => void;
 }
@@ -24,7 +26,7 @@ function Field(props: FieldProps) {
         const current = props.options.find(o => o.text == val)?.value;
 
         console.log(current);
-        
+
         props.onChange(current);
     }
 
@@ -63,7 +65,11 @@ export default function ConfigDialog(props: Props) {
     ]
 
     return (
-        <div className={style.configDialog} onClick={e => e.stopPropagation()}>
+        <div className={`${style.configDialog} ${props.mobile ? style.mobile : ''}`} onClick={e => e.stopPropagation()}>
+            {props.mobile &&
+                <div className={style.header}>
+                    <div className={style.closeBtn} onClick={e => props.onClose()} />
+                </div>}
             <Field onChange={speed => props.onChangeSpeed(speed)} title="Velocidade" options={speeds} value={props.currentSpeed} />
             <Field onChange={sub => props.onSelectSubtitle(sub)} title="Legenda" options={subtitles} value={props.selectedSubtitle} />
         </div>

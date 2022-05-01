@@ -33,20 +33,20 @@ interface Props {
 
 export default function VideoControls(props: Props) {
 
-    const { 
-        isPlaying, 
+    const {
+        isPlaying,
         isLoading,
-        duration, 
-        currentTime, 
-        volume, 
-        speed, 
-        subtitles, 
-        selectedSubtitle, 
+        duration,
+        currentTime,
+        volume,
+        speed,
+        subtitles,
+        selectedSubtitle,
         mobile
     } = props;
     const { onPlay, onPause, onSeek, onSetVolume, onChangeFullscreen, onChangeSpeed, onSelectSubtitle, onBannerClick } = props;
 
-    const [ isDialogOpened, setDialogOpened ] = useState(false);
+    const [isDialogOpened, setDialogOpened] = useState(false);
 
     const inline = {
         opacity: (props.visible || isDialogOpened || isLoading) ? 1 : 0,
@@ -69,35 +69,36 @@ export default function VideoControls(props: Props) {
     }
 
     return (
-        <div className={style.videoControls.concat(mobile ? (' '+style.videoControlsMobile) : '')} style={inline}>
+        <div className={style.videoControls.concat(mobile ? (' ' + style.videoControlsMobile) : '')} style={inline}>
             <div className={style.screenControls} onClick={() => bannerClick()}>
-                { isDialogOpened ? (
-                    <Padding value="16px">
-                        <ConfigDialog
-                            selectedSubtitle={selectedSubtitle} 
-                            subtitles={subtitles} 
-                            currentSpeed={speed} 
-                            onSelectSubtitle={sub => onSelectSubtitle(sub)} 
-                            onChangeSpeed={speed => onChangeSpeed(speed)} />
-                    </Padding>
+                {isDialogOpened ? (
+                    <ConfigDialog
+                        selectedSubtitle={selectedSubtitle}
+                        subtitles={subtitles}
+                        currentSpeed={speed}
+                        onSelectSubtitle={sub => onSelectSubtitle(sub)}
+                        onChangeSpeed={speed => onChangeSpeed(speed)}
+                        mobile={mobile}
+                        onClose={() => setDialogOpened(false)} 
+                    />
                 ) : <div className={style.bannerPlayPause}>
-                    {isLoading 
-                        ? <LoadingAnimation /> 
+                    {isLoading
+                        ? <LoadingAnimation />
                         : <PlayPause isPlaying={isPlaying} onPlay={() => onPlay()} onPause={() => onPause()} />
                     }
-                </div> }
+                </div>}
             </div>
             <div className={style.videoTiming}>
                 <div className={style.currentTime}>{formatTime(currentTime)}</div>
                 <div className={style.totalTime}>{formatTime(duration)}</div>
             </div>
-            <div className={style.downControls.concat(mobile ? (' '+style.downControlsMobile) : '')}>
+            <div className={style.downControls.concat(mobile ? (' ' + style.downControlsMobile) : '')}>
                 <VideoTrackBar
-                    duration={duration} 
-                    currentTime={currentTime} 
-                    onSeek={n => onSeek(n)}  
+                    duration={duration}
+                    currentTime={currentTime}
+                    onSeek={n => onSeek(n)}
                 />
-                <div className={style.barControls.concat(mobile ? (' '+style.barControlsMobile) : '')}>
+                <div className={style.barControls.concat(mobile ? (' ' + style.barControlsMobile) : '')}>
                     <div className={style.barControlsLeft}>
                         <Padding value="6px">
                             <PlayPause isPlaying={isPlaying} onPlay={() => onPlay()} onPause={() => onPause()} />

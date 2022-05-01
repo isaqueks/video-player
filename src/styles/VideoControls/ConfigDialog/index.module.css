@@ -7,7 +7,48 @@
     background-color: rgb(50, 50, 50);
     border-radius: 8px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-    position: relative;
+}
+
+.configDialog.mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1000000;
+}
+
+.header {
+    display: block;
+    width: 100%;
+    height: 30px;
+}
+
+.header div {
+    display: block;
+    width: 30px;
+    height: 30px;
+    float: right;
+}
+
+.closeBtn::before {
+    margin: auto;
+    content: ' ';
+    display: block;
+    width: 3px;
+    height: 100%;
+    background-color: white;
+    transform: rotate(45deg);
+}
+
+.closeBtn::after {
+    margin: auto;
+    content: ' ';
+    display: block;
+    width: 3px;
+    height: 100%;
+    background-color: white;
+    transform: translate(0, -100%) rotate(-45deg);
 }
 
 .field {
